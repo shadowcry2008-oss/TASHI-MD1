@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PAIR CODE | TASHI-MD WhatsApp Bot Connection</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Rajdhani:wght@300;400;500;600&family=Poppins:wght@300;400;500;600&display=swap');
+    
+    :root {
+      --primary: #c77dff;
+      --secondary: #ff85c0;
+      --accent: #ffa8ba;
+      --dark: #1a1a2e;
+      --darker: #0f0f1a;
+      --light: #f8f9fa;
+      --glass: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --gradient: linear-gradient(135deg, #c77dff 0%, #ff85c0 100%);
+      --gradient-secondary: linear-gradient(135deg, #ff85c0 0%, #ffa8ba 100%);
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      display: flex; justify-content: center; align-items: center; min-height: 100vh;
+      background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+      font-family: 'Poppins', sans-serif; color: var(--light); overflow: hidden; position: relative;
+    }
+    
+    .grid {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background-image: linear-gradient(rgba(199, 125, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(199, 125, 255, 0.05) 1px, transparent 1px);
+      background-size: 30px 30px; z-index: -1;
+    }
+    
+    .container { display: flex; flex-direction: column; align-items: center; width: 100%; padding: 20px; }
+    .main { position: relative; width: 100%; max-width: 420px; }
+    
+    .box {
+      width: 100%; padding: 35px; text-align: center; background: var(--glass);
+      border-radius: 20px; backdrop-filter: blur(15px); border: 1px solid var(--glass-border);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3); z-index: 1;
+    }
+    
+    .logo-image {
+      width: 80px; height: 80px; border-radius: 50%; background: var(--gradient);
+      display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;
+    }
+    .logo-image img { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; }
+    
+    .logo-text {
+      font-family: 'Orbitron', sans-serif; font-size: 28px; font-weight: 700;
+      background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    
+    .input-container {
+      display: flex; background: rgba(0, 0, 0, 0.2); border-radius: 12px;
+      padding: 4px; gap: 4px; width: 100%; margin-bottom: 20px; border: 1px solid var(--glass-border);
+    }
+    
+    .input-container input {
+      border-radius: 8px 0 0 8px; background: rgba(0, 0, 0, 0.3); width: 100%;
+      padding: 15px; border: none; color: white; font-size: 16px;
+    }
+    
+    .input-container button {
+      padding: 15px; background: var(--gradient); font-family: 'Orbitron', sans-serif;
+      color: white; border: none; border-radius: 0 8px 8px 0; cursor: pointer;
+    }
+    
+    .code-display {
+      font-family: 'Orbitron', sans-serif; font-size: 22px; background: rgba(0, 0, 0, 0.3);
+      padding: 12px 20px; border-radius: 8px; border: 1px solid var(--glass-border);
+      display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer;
+    }
+    
+    .footer { position: absolute; bottom: 20px; width: 100%; text-align: center; color: rgba(255, 255, 255, 0.6); }
+  </style>
+</head>
+<body>
+  <div class="grid"></div>
+  <div class="container">
+    <div class="main">
+      <div class="box">
+        <div class="logo">
+          <div class="logo-image"><img src="/media/tashi-logo.png" alt="Bot"></div>
+          <div class="logo-text">TASHI-MD</div>
+        </div>
+        <h3>∞ Link with phone number ∞</h3>
+        <h6>🌴 Enter Your Number With Country Code 🌴</h6>
+        <div class="input-container">
+          <input placeholder="+94xxxxxxxxx" type="tel" id="number">
+          <button id="submit">enter</button>
+        </div>
+        <a id="waiting-message" style="display:none; color:var(--secondary);">Processing...</a>
+        <main id="pair"></main>
+      </div>
+    </div>
+  </div>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0-alpha.1/axios.min.js"></script>
+  <script>
+    let a = document.getElementById("pair"), b = document.getElementById("submit"), c = document.getElementById("number"), waitingMessage = document.getElementById("waiting-message");
+
+    async function Copy() {
+      let text = document.getElementById("copy-value").innerText;
+      await navigator.clipboard.writeText(text);
+      alert("Copied: " + text);
+    }
+
+    b.addEventListener("click", async (e) => {
+      e.preventDefault();
+      if (!c.value) return alert("Enter your number");
+      const bc = c.value.replace(/[^0-9]/g, "");
+      waitingMessage.style.display = "block";
+      a.innerHTML = '';
+      
+      try {
+        let { data } = await axios(`/pair?number=${bc}`);
+        let code = data.code || "Service Unavailable";
+        waitingMessage.style.display = "none";
+        a.innerHTML = `<div class="code-display" onclick="Copy()">CODE: <span id="copy-value" style="color:var(--secondary);">${code}</span></div>`;
+      } catch (error) {
+        waitingMessage.style.display = "none";
+        a.innerHTML = '<div style="color:red;">Service Unavailable</div>';
+      }
+    });
+  </script>
+</body>
+</html>
